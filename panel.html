@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meet Add-on • Panel</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;padding:16px}
+    .card{border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    input{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;margin:8px 0}
+    button{padding:10px 14px;border:0;border-radius:12px;cursor:pointer;margin-right:8px}
+    .primary{background:#111827;color:#fff}
+    .ghost{background:#f3f4f6}
+    small{color:#6b7280}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin:0">Hello from the Side Panel</h2>
+    <small>Type a message and share it to the stage.</small>
+    <input id="msg" placeholder="Type here…" maxlength="140" />
+    <div>
+      <button id="share" class="primary">Share to stage</button>
+      <button id="open" class="ghost">Open stage</button>
+      <button id="clear" class="ghost">Clear</button>
+    </div>
+    <p><small id="ctx">loading context…</small></p>
+  </div>
+
+  <script type="module">
+    import { ensureInitialized, meet } from './sdk-helpers.js';
+    const $ = (s) => document.querySelector(s);
+    const stageUrl = new URL('./stage.html', location.href).href;
+
+    (async () => {
+      const ctx = await ensureInitialized();
+      $('#ctx').textContent = ctx?.meetingId ? `meeting: ${ctx.meetingId}` : 'not running inside Meet';
+      $('#open').onclick = () => meet.openStage(stageUrl);
+      $('#share').onclick = async () => {
+        await meet.openStage(stageUrl);
+        await meet.setSharedState({ message: $('#msg').value.trim() });
+      };
+      $('#clear').onclick = () => meet.setSharedState({ message: '' });
+    })();
+  </script>
+</body>
+</html>
